@@ -38,23 +38,23 @@ public class ShopInventoryController {
 		this.shopInventoryService = shopInventoryService;
 	}
 
-	@PostMapping("/saveCategoryDetails")
-	public ResponseEntity<ApiResponse<CategoryResponse>> saveCategoryDetails(
-			@RequestBody CategoryRequest categoryRequest) {
-		try {
-			CategoryResponse savedCategory = shopInventoryService.saveCategoryDetails(categoryRequest);
-			return ResponseEntity.status(HttpStatus.CREATED)
-					.body(ApiResponse.success("Data saved successfully", savedCategory));
-		} catch (ShopInventoryException e) {
-			logger.error("Error saving category: {}", categoryRequest, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
-		} catch (Exception e) {
-			logger.error("Unexpected error occurred while saving category: {}", categoryRequest, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
-		}
-	}
+//	@PostMapping("/saveCategoryDetails")
+//	public ResponseEntity<ApiResponse<CategoryResponse>> saveCategoryDetails(
+//			@RequestBody CategoryRequest categoryRequest) {
+//		try {
+//			CategoryResponse savedCategory = shopInventoryService.saveCategoryDetails(categoryRequest);
+//			return ResponseEntity.status(HttpStatus.CREATED)
+//					.body(ApiResponse.success("Data saved successfully", savedCategory));
+//		} catch (ShopInventoryException e) {
+//			logger.error("Error saving category: {}", categoryRequest, e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
+//		} catch (Exception e) {
+//			logger.error("Unexpected error occurred while saving category: {}", categoryRequest, e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
+//		}
+//	}
 
 	@PostMapping("/updateCategoryDetails")
 	public ResponseEntity<ApiResponse<UpdatedCategoryResponse>> updateCategoryDetails(
@@ -96,7 +96,7 @@ public class ShopInventoryController {
 	public ResponseEntity<ApiResponse<BrandResponseDetails>> saveBrandDetails(
 			@RequestBody BrandRequestDetails brandRequestDetails) {
 		try {
-			logger.info("Saving brand details: {}", brandRequestDetails);
+	//		logger.info("Saving brand details: {}", brandRequestDetails);
 			BrandResponseDetails brandResponseDetails = shopInventoryService.saveBrandDetails(brandRequestDetails);
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(ApiResponse.success("Data saved successfully", brandResponseDetails));
@@ -106,6 +106,23 @@ public class ShopInventoryController {
 					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
 		} catch (Exception e) {
 			logger.error("Unexpected error occurred while saving category: {}", brandRequestDetails, e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
+		}
+	}
+	@PostMapping("/saveCategoryDetails")
+	public ResponseEntity<ApiResponse<CategoryResponse>> saveCategoryDetails(
+			@RequestBody CategoryRequest categoryRequest) {
+		try {
+			CategoryResponse savedCategory = shopInventoryService.saveCategoryDetails(categoryRequest);
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(ApiResponse.success("Data saved successfully", savedCategory));
+		} catch (ShopInventoryException e) {
+			logger.error("Error saving category: {}", categoryRequest, e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
+		} catch (Exception e) {
+			logger.error("Unexpected error occurred while saving category: {}", categoryRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
 		}

@@ -43,22 +43,22 @@ public class ShopInventoryService {
 		this.supplierDetailsRepository = supplierDetailsRepository;
 	}
 
-	public CategoryResponse saveCategoryDetails(CategoryRequest categoryRequest) throws ShopInventoryException {
-		try {
-			logger.info("Saving category: {}", categoryRequest);
-			CategoryDetails category = new CategoryDetails();
-			category.setCategoryName(categoryRequest.getCategoryName());
-			category.setCategoryCode(categoryRequest.getCategoryCode());
-			category.setCategoryAddDate(categoryRequest.getCategoryAddDate());
-			category.setCategoryStatus(categoryRequest.getCategoryStatus());
-			category.setCategoryDescription(categoryRequest.getCategoryDescription());
-			category = inventoryRepository.save(category);
-			return new CategoryResponse(category.getCategoryId(), category.getCategoryName());
-		} catch (Exception e) {
-			logger.error("Error saving category", e);
-			throw new ShopInventoryException("Error saving category", e);
-		}
-	}
+//	public CategoryResponse saveCategoryDetails(CategoryRequest categoryRequest) throws ShopInventoryException {
+//		try {
+//			logger.info("Saving category: {}", categoryRequest);
+//			CategoryDetails category = new CategoryDetails();
+//			category.setCategoryName(categoryRequest.getCategoryName());
+//			category.setCategoryCode(categoryRequest.getCategoryCode());
+//			category.setCategoryAddDate(categoryRequest.getCategoryAddDate());
+//			category.setCategoryStatus(categoryRequest.getCategoryStatus());
+//			category.setCategoryDescription(categoryRequest.getCategoryDescription());
+//			category = inventoryRepository.save(category);
+//			return new CategoryResponse(category.getCategoryId(), category.getCategoryName());
+//		} catch (Exception e) {
+//			logger.error("Error saving category", e);
+//			throw new ShopInventoryException("Error saving category", e);
+//		}
+//	}
 
 	public UpdatedCategoryResponse updateCategoryDetails(CategoryRequest categoryRequest)
 			throws ShopInventoryException {
@@ -130,6 +130,23 @@ public class ShopInventoryService {
 		} catch (Exception e) {
 			logger.error("Error saving brand", e);
 			throw new ShopInventoryException("Error saving brand", e);
+		}
+	}
+
+	public CategoryResponse saveCategoryDetails(CategoryRequest categoryRequest) throws ShopInventoryException {
+		try {
+			logger.info("Saving category: {}", categoryRequest);
+			CategoryDetails category = new CategoryDetails();
+			category.setCategoryName(categoryRequest.getCategoryName());
+			category.setCategoryCode(categoryRequest.getCategoryCode());
+			category.setCategoryAddDate(categoryRequest.getCategoryAddDate());
+			category.setCategoryStatus(categoryRequest.getCategoryStatus());
+			category.setCategoryDescription(categoryRequest.getCategoryDescription());
+			category = inventoryRepository.save(category);
+			return new CategoryResponse(category.getCategoryId(), category.getCategoryName());
+		} catch (Exception e) {
+			logger.error("Error saving category", e);
+			throw new ShopInventoryException("Error saving category", e);
 		}
 	}
 
@@ -234,33 +251,35 @@ public class ShopInventoryService {
 
 	}
 
-	public SupplierResponseDetails updateSupplierDetails(SupplierRequest supplierRequest) throws ShopInventoryException {
+	public SupplierResponseDetails updateSupplierDetails(SupplierRequest supplierRequest)
+			throws ShopInventoryException {
 		try {
-	        logger.info("Updating supplier: {}", supplierRequest);
-	        Optional<SupplierDetails> supplierDetails = supplierDetailsRepository.findById(supplierRequest.getSupplierId());
+			logger.info("Updating supplier: {}", supplierRequest);
+			Optional<SupplierDetails> supplierDetails = supplierDetailsRepository
+					.findById(supplierRequest.getSupplierId());
 
-	        if (supplierDetails.isEmpty()) {
-	            throw new ShopInventoryException("Supplier not found for ID: " + supplierRequest.getSupplierId());
-	        }
+			if (supplierDetails.isEmpty()) {
+				throw new ShopInventoryException("Supplier not found for ID: " + supplierRequest.getSupplierId());
+			}
 
-	        SupplierDetails supplierDetailsToUpdate = supplierDetails.get();
-	        supplierDetailsToUpdate.setName(supplierRequest.getName());
-	        supplierDetailsToUpdate.setContactInfo(supplierRequest.getContactInfo());
-	        supplierDetailsToUpdate.setAddress(supplierRequest.getAddress());
-	        supplierDetailsToUpdate.setEmail(supplierRequest.getEmail());
-	        supplierDetailsToUpdate.setPhoneNumber(supplierRequest.getPhoneNumber());
-	        supplierDetailsToUpdate.setWebSite(supplierRequest.getWebSite());
+			SupplierDetails supplierDetailsToUpdate = supplierDetails.get();
+			supplierDetailsToUpdate.setName(supplierRequest.getName());
+			supplierDetailsToUpdate.setContactInfo(supplierRequest.getContactInfo());
+			supplierDetailsToUpdate.setAddress(supplierRequest.getAddress());
+			supplierDetailsToUpdate.setEmail(supplierRequest.getEmail());
+			supplierDetailsToUpdate.setPhoneNumber(supplierRequest.getPhoneNumber());
+			supplierDetailsToUpdate.setWebSite(supplierRequest.getWebSite());
 
-	        supplierDetailsRepository.save(supplierDetailsToUpdate);  // Correct method is 'save()' to persist updates
+			supplierDetailsRepository.save(supplierDetailsToUpdate); // Correct method is 'save()' to persist updates
 
-	        return new SupplierResponseDetails(supplierDetailsToUpdate.getSupplierId(),
-	                supplierDetailsToUpdate.getName(), supplierDetailsToUpdate.getContactInfo(),
-	                supplierDetailsToUpdate.getAddress(), supplierDetailsToUpdate.getEmail(),
-	                supplierDetailsToUpdate.getPhoneNumber(), supplierDetailsToUpdate.getWebSite());
+			return new SupplierResponseDetails(supplierDetailsToUpdate.getSupplierId(),
+					supplierDetailsToUpdate.getName(), supplierDetailsToUpdate.getContactInfo(),
+					supplierDetailsToUpdate.getAddress(), supplierDetailsToUpdate.getEmail(),
+					supplierDetailsToUpdate.getPhoneNumber(), supplierDetailsToUpdate.getWebSite());
 
-	    } catch (Exception e) {
-	        logger.error("Error updating supplier", e);  // Updated logging to reference suppliers
-	        throw new ShopInventoryException("Error updating supplier", e);  // Consistent exception message
-	    }
-}
+		} catch (Exception e) {
+			logger.error("Error updating supplier", e); // Updated logging to reference suppliers
+			throw new ShopInventoryException("Error updating supplier", e); // Consistent exception message
+		}
+	}
 }

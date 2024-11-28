@@ -12,5 +12,5 @@ public interface BrandsDetailsRepository extends JpaRepository<BrandsDetails, In
 
 	Optional<BrandsDetails> findByBrandId(Integer brandId);
 
-	BrandsDetails save(BrandsDetails brandsDetails);
+//	BrandsDetails save(BrandsDetails brandsDetails);
 }
