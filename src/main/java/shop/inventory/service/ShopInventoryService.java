@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import shop.inventory.entity.BrandsDetails;
@@ -19,13 +20,13 @@ import shop.inventory.repository.SupplierDetailsRepository;
 import shop.inventory.request.BrandRequestDetails;
 import shop.inventory.request.CategoryRequest;
 import shop.inventory.request.SupplierRequest;
-import shop.inventory.response.BrandRespDetails;
 import shop.inventory.response.BrandResponseDetails;
 import shop.inventory.response.CategoryResponse;
 import shop.inventory.response.SelectCategoryResponse;
 import shop.inventory.response.SupplierResponseDetail;
 import shop.inventory.response.SupplierResponseDetails;
 import shop.inventory.response.UpdatedCategoryResponse;
+import shop.inventory.utility.UniqueCodeUtil;
 
 @Service
 public class ShopInventoryService {
@@ -43,27 +44,82 @@ public class ShopInventoryService {
 		this.supplierDetailsRepository = supplierDetailsRepository;
 	}
 
-//	public CategoryResponse saveCategoryDetails(CategoryRequest categoryRequest) throws ShopInventoryException {
+	public BrandResponseDetails saveBrandDetails(BrandRequestDetails brandRequestDetails)
+			throws ShopInventoryException {
+		try {
+			String generatedBrandCode = UniqueCodeUtil.generateUniqueCode(brandRequestDetails.getBrandName());
+			BrandsDetails brandsDetails = new BrandsDetails();
+			brandsDetails.setBrandName(brandRequestDetails.getBrandName());
+			brandsDetails.setDescription(brandRequestDetails.getDescription());
+			brandsDetails.setBrandCode(generatedBrandCode);
+			brandsDetails.setCreatedAt(brandRequestDetails.getCreatedAt());
+			brandsDetails.setStatus(brandRequestDetails.getStatus());
+
+			brandsDetails = brandsDetailsRepository.save(brandsDetails);
+
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ShopInventoryException("Error saving brand", e);
+		}
+	}
+
+//	public BrandRespDetails getBrandDetails(Integer brandId) throws ShopInventoryException {
 //		try {
-//			logger.info("Saving category: {}", categoryRequest);
-//			CategoryDetails category = new CategoryDetails();
-//			category.setCategoryName(categoryRequest.getCategoryName());
-//			category.setCategoryCode(categoryRequest.getCategoryCode());
-//			category.setCategoryAddDate(categoryRequest.getCategoryAddDate());
-//			category.setCategoryStatus(categoryRequest.getCategoryStatus());
-//			category.setCategoryDescription(categoryRequest.getCategoryDescription());
-//			category = inventoryRepository.save(category);
-//			return new CategoryResponse(category.getCategoryId(), category.getCategoryName());
+//			logger.info("Retrieving brand with ID: {}", brandId);
+//			Optional<BrandsDetails> brandDetailsOpt = brandsDetailsRepository.findById(brandId);
+//			if (brandDetailsOpt.isPresent()) {
+//				BrandsDetails brandsDetails = brandDetailsOpt.get();
+//				return new BrandRespDetails(brandsDetails.getBrandId(), brandsDetails.getBrandName(),
+//						brandsDetails.getDescription(), brandsDetails.getBrandCode(), brandsDetails.getCreatedAt(),
+//						brandsDetails.getStatus());
+//			} else {
+//				throw new ShopInventoryException("Brand not found for ID: " + brandId);
+//			}
 //		} catch (Exception e) {
-//			logger.error("Error saving category", e);
-//			throw new ShopInventoryException("Error saving category", e);
+//			logger.error("Error retrieving brand", e);
+//			throw new ShopInventoryException("Error retrieving brand", e);
+//		}
+//	}
+//
+//	public List<BrandRespDetails> getAllBrandDetails() throws ShopInventoryException {
+//		try {
+//			logger.info("Retrieving all brands");
+//			List<BrandsDetails> brandsDetailsList = brandsDetailsRepository.findAll();
+//			return brandsDetailsList.stream()
+//					.map(brandDetails -> new BrandRespDetails(brandDetails.getBrandId(), brandDetails.getBrandName(),
+//							brandDetails.getDescription(), brandDetails.getBrandCode(), brandDetails.getCreatedAt(),
+//							brandDetails.getStatus()))
+//					.collect(Collectors.toList());
+//		} catch (Exception e) {
+//			logger.error("Error retrieving all brands", e);
+//			throw new ShopInventoryException("Error retrieving all brands", e);
+//		}
+//	}
+//
+//	public BrandRespDetails updateBrandDetails(BrandRequestDetails brandRequestDetails) throws ShopInventoryException {
+//		try {
+//			logger.info("Updating brand: {}", brandRequestDetails);
+//			Optional<BrandsDetails> optionalBrand = brandsDetailsRepository.findById(brandRequestDetails.getBrandId());
+//			if (optionalBrand.isEmpty()) {
+//				throw new ShopInventoryException("Brand not found for ID: " + brandRequestDetails.getBrandId());
+//			}
+//			BrandsDetails brandsDetails = optionalBrand.get();
+//			brandsDetails.setBrandName(brandRequestDetails.getBrandName());
+//			brandsDetails.setDescription(brandRequestDetails.getDescription());
+//			brandsDetailsRepository.save(brandsDetails);
+//			return new BrandRespDetails(brandsDetails.getBrandId(), brandsDetails.getBrandName(),
+//					brandsDetails.getDescription(), brandsDetails.getBrandCode(), brandsDetails.getCreatedAt(),
+//					brandsDetails.getStatus());
+//		} catch (Exception e) {
+//			logger.error("Error updating brand", e);
+//			throw new ShopInventoryException("Error updating brand", e);
 //		}
 //	}
 
 	public UpdatedCategoryResponse updateCategoryDetails(CategoryRequest categoryRequest)
 			throws ShopInventoryException {
 		try {
-			logger.info("Updating category: {}", categoryRequest);
 			Optional<CategoryDetails> optionalCategory = inventoryRepository.findById(categoryRequest.getCategoryId());
 			if (optionalCategory.isEmpty()) {
 				throw new ShopInventoryException("Category not found for ID: " + categoryRequest.getCategoryId());
@@ -78,9 +134,11 @@ public class ShopInventoryService {
 			return new UpdatedCategoryResponse(categoryDetails.getCategoryId(), categoryDetails.getCategoryName(),
 					categoryDetails.getCategoryCode(), categoryDetails.getCategoryAddDate(),
 					categoryDetails.getCategoryStatus(), categoryDetails.getCategoryDescription());
+		} catch (DataAccessException e) {
+			throw new ShopInventoryException("Database error while updating category", e);
 		} catch (Exception e) {
-			logger.error("Error updating category", e);
-			throw new ShopInventoryException("Error updating category", e);
+			e.printStackTrace();
+			throw new ShopInventoryException("Unexpected error updating category", e);
 		}
 	}
 
@@ -118,21 +176,6 @@ public class ShopInventoryService {
 		}
 	}
 
-	public BrandResponseDetails saveBrandDetails(BrandRequestDetails brandRequestDetails)
-			throws ShopInventoryException {
-		try {
-			logger.info("Saving brand: {}", brandRequestDetails);
-			BrandsDetails brandsDetails = new BrandsDetails();
-			brandsDetails.setBrandName(brandRequestDetails.getBrandName());
-			brandsDetails.setDescription(brandRequestDetails.getDescription());
-			brandsDetails = brandsDetailsRepository.save(brandsDetails);
-			return new BrandResponseDetails(brandsDetails.getBrandId(), brandsDetails.getBrandName());
-		} catch (Exception e) {
-			logger.error("Error saving brand", e);
-			throw new ShopInventoryException("Error saving brand", e);
-		}
-	}
-
 	public CategoryResponse saveCategoryDetails(CategoryRequest categoryRequest) throws ShopInventoryException {
 		try {
 			logger.info("Saving category: {}", categoryRequest);
@@ -147,54 +190,6 @@ public class ShopInventoryService {
 		} catch (Exception e) {
 			logger.error("Error saving category", e);
 			throw new ShopInventoryException("Error saving category", e);
-		}
-	}
-
-	public BrandRespDetails getBrandDetails(Integer brandId) throws ShopInventoryException {
-		try {
-			logger.info("Retrieving brand with ID: {}", brandId);
-			Optional<BrandsDetails> brandDetailsOpt = brandsDetailsRepository.findById(brandId);
-			if (brandDetailsOpt.isPresent()) {
-				BrandsDetails brandsDetails = brandDetailsOpt.get();
-				return new BrandRespDetails(brandsDetails.getBrandId(), brandsDetails.getBrandName(),
-						brandsDetails.getDescription());
-			} else {
-				throw new ShopInventoryException("Brand not found for ID: " + brandId);
-			}
-		} catch (Exception e) {
-			logger.error("Error retrieving brand", e);
-			throw new ShopInventoryException("Error retrieving brand", e);
-		}
-	}
-
-	public List<BrandRespDetails> getAllBrandDetails() throws ShopInventoryException {
-		try {
-			logger.info("Retrieving all brands");
-			List<BrandsDetails> brandsDetailsList = brandsDetailsRepository.findAll();
-			return brandsDetailsList.stream().map(brandDetails -> new BrandRespDetails(brandDetails.getBrandId(),
-					brandDetails.getBrandName(), brandDetails.getDescription())).collect(Collectors.toList());
-		} catch (Exception e) {
-			logger.error("Error retrieving all brands", e);
-			throw new ShopInventoryException("Error retrieving all brands", e);
-		}
-	}
-
-	public BrandRespDetails updateBrandDetails(BrandRequestDetails brandRequestDetails) throws ShopInventoryException {
-		try {
-			logger.info("Updating brand: {}", brandRequestDetails);
-			Optional<BrandsDetails> optionalBrand = brandsDetailsRepository.findById(brandRequestDetails.getBrandId());
-			if (optionalBrand.isEmpty()) {
-				throw new ShopInventoryException("Brand not found for ID: " + brandRequestDetails.getBrandId());
-			}
-			BrandsDetails brandsDetails = optionalBrand.get();
-			brandsDetails.setBrandName(brandRequestDetails.getBrandName());
-			brandsDetails.setDescription(brandRequestDetails.getDescription());
-			brandsDetailsRepository.save(brandsDetails);
-			return new BrandRespDetails(brandsDetails.getBrandId(), brandsDetails.getBrandName(),
-					brandsDetails.getDescription());
-		} catch (Exception e) {
-			logger.error("Error updating brand", e);
-			throw new ShopInventoryException("Error updating brand", e);
 		}
 	}
 

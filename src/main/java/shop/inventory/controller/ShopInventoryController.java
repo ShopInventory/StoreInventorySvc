@@ -38,43 +38,39 @@ public class ShopInventoryController {
 		this.shopInventoryService = shopInventoryService;
 	}
 
-//	@PostMapping("/saveCategoryDetails")
-//	public ResponseEntity<ApiResponse<CategoryResponse>> saveCategoryDetails(
-//			@RequestBody CategoryRequest categoryRequest) {
-//		try {
-//			CategoryResponse savedCategory = shopInventoryService.saveCategoryDetails(categoryRequest);
-//			return ResponseEntity.status(HttpStatus.CREATED)
-//					.body(ApiResponse.success("Data saved successfully", savedCategory));
-//		} catch (ShopInventoryException e) {
-//			logger.error("Error saving category: {}", categoryRequest, e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
-//		} catch (Exception e) {
-//			logger.error("Unexpected error occurred while saving category: {}", categoryRequest, e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
-//		}
-//	}
+	@PostMapping("/saveBrandDetails")
+	public ResponseEntity<ApiResponse<BrandResponseDetails>> saveBrandDetails(
+			@RequestBody BrandRequestDetails brandRequestDetails) {
+		try {
+			BrandResponseDetails brandResponseDetails = shopInventoryService.saveBrandDetails(brandRequestDetails);
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(ApiResponse.success("Data saved successfully", brandResponseDetails));
+		} catch (ShopInventoryException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
+		}
+	}
 
 	@PostMapping("/updateCategoryDetails")
 	public ResponseEntity<ApiResponse<UpdatedCategoryResponse>> updateCategoryDetails(
 			@RequestBody CategoryRequest categoryRequest) {
 		try {
-			logger.info("Updating category: {}", categoryRequest);
 			UpdatedCategoryResponse updatedCategory = shopInventoryService.updateCategoryDetails(categoryRequest);
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ApiResponse.success("Data updated successfully", updatedCategory));
 		} catch (ShopInventoryException e) {
-			logger.error("Error updating category: {}", categoryRequest, e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(ApiResponse.error("Category not found or data already updated.", "NOT_FOUND"));
+		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Data already updated or not found..!!", "INTERNAL_SERVER_ERROR"));
+					.body(ApiResponse.error("An unexpected error occurred.", "INTERNAL_SERVER_ERROR"));
 		}
 	}
 
 	@PostMapping("/getCategoryDetails")
 	public ResponseEntity<ApiResponse<?>> getCategoryDetails(@RequestBody CategoryRequest categoryRequest) {
 		try {
-			logger.info("Fetching category details for request: {}", categoryRequest);
 			if (categoryRequest.getCategoryId() != null) {
 				SelectCategoryResponse selectCategory = shopInventoryService
 						.getCategoryDetails(categoryRequest.getCategoryId());
@@ -86,30 +82,11 @@ public class ShopInventoryController {
 						.body(ApiResponse.success("All data retrieved successfully", allCategories));
 			}
 		} catch (ShopInventoryException e) {
-			logger.error("Error retrieving category details: {}", categoryRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("No Data Found..!!", "INTERNAL_SERVER_ERROR"));
 		}
 	}
 
-	@PostMapping("/saveBrandDetails")
-	public ResponseEntity<ApiResponse<BrandResponseDetails>> saveBrandDetails(
-			@RequestBody BrandRequestDetails brandRequestDetails) {
-		try {
-	//		logger.info("Saving brand details: {}", brandRequestDetails);
-			BrandResponseDetails brandResponseDetails = shopInventoryService.saveBrandDetails(brandRequestDetails);
-			return ResponseEntity.status(HttpStatus.CREATED)
-					.body(ApiResponse.success("Data saved successfully", brandResponseDetails));
-		} catch (ShopInventoryException e) {
-			logger.error("Error saving brand: {}", brandRequestDetails, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
-		} catch (Exception e) {
-			logger.error("Unexpected error occurred while saving category: {}", brandRequestDetails, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
-		}
-	}
 	@PostMapping("/saveCategoryDetails")
 	public ResponseEntity<ApiResponse<CategoryResponse>> saveCategoryDetails(
 			@RequestBody CategoryRequest categoryRequest) {
@@ -118,51 +95,45 @@ public class ShopInventoryController {
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(ApiResponse.success("Data saved successfully", savedCategory));
 		} catch (ShopInventoryException e) {
-			logger.error("Error saving category: {}", categoryRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
 		} catch (Exception e) {
-			logger.error("Unexpected error occurred while saving category: {}", categoryRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
 		}
 	}
 
-	@PostMapping("/getBrandDetails")
-	public ResponseEntity<ApiResponse<?>> getBrandDetails(@RequestBody BrandRequestDetails brandRequestDetails) {
-		try {
-			logger.info("Fetching brand details for request: {}", brandRequestDetails);
-			if (brandRequestDetails.getBrandId() != null) {
-				BrandRespDetails brandRespDetails = shopInventoryService
-						.getBrandDetails(brandRequestDetails.getBrandId());
-				return ResponseEntity.status(HttpStatus.OK)
-						.body(ApiResponse.success("Data retrieved successfully", brandRespDetails));
-			} else {
-				List<BrandRespDetails> allBrandDetails = shopInventoryService.getAllBrandDetails();
-				return ResponseEntity.status(HttpStatus.OK)
-						.body(ApiResponse.success("All data retrieved successfully", allBrandDetails));
-			}
-		} catch (ShopInventoryException e) {
-			logger.error("Error retrieving brand details: {}", brandRequestDetails, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("No Data Found..!!", "INTERNAL_SERVER_ERROR"));
-		}
-	}
-
-	@PostMapping("/updateBrandDetails")
-	public ResponseEntity<ApiResponse<BrandRespDetails>> updateBrandDetails(
-			@RequestBody BrandRequestDetails brandRequestDetails) {
-		try {
-			logger.info("Updating brand: {}", brandRequestDetails);
-			BrandRespDetails brandRespDetails = shopInventoryService.updateBrandDetails(brandRequestDetails);
-			return ResponseEntity.status(HttpStatus.OK)
-					.body(ApiResponse.success("Data updated successfully", brandRespDetails));
-		} catch (ShopInventoryException e) {
-			logger.error("Error updating brand: {}", brandRequestDetails, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Data already updated or not found..!!", "INTERNAL_SERVER_ERROR"));
-		}
-	}
+//	@PostMapping("/getBrandDetails")
+//	public ResponseEntity<ApiResponse<?>> getBrandDetails(@RequestBody BrandRequestDetails brandRequestDetails) {
+//		try {
+//			if (brandRequestDetails.getBrandId() != null) {
+//				BrandRespDetails brandRespDetails = shopInventoryService
+//						.getBrandDetails(brandRequestDetails.getBrandId());
+//				return ResponseEntity.status(HttpStatus.OK)
+//						.body(ApiResponse.success("Data retrieved successfully", brandRespDetails));
+//			} else {
+//				List<BrandRespDetails> allBrandDetails = shopInventoryService.getAllBrandDetails();
+//				return ResponseEntity.status(HttpStatus.OK)
+//						.body(ApiResponse.success("All data retrieved successfully", allBrandDetails));
+//			}
+//		} catch (ShopInventoryException e) {
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(ApiResponse.error("No Data Found..!!", "INTERNAL_SERVER_ERROR"));
+//		}
+//	}
+//
+//	@PostMapping("/updateBrandDetails")
+//	public ResponseEntity<ApiResponse<BrandRespDetails>> updateBrandDetails(
+//			@RequestBody BrandRequestDetails brandRequestDetails) {
+//		try {
+//			BrandRespDetails brandRespDetails = shopInventoryService.updateBrandDetails(brandRequestDetails);
+//			return ResponseEntity.status(HttpStatus.OK)
+//					.body(ApiResponse.success("Data updated successfully", brandRespDetails));
+//		} catch (ShopInventoryException e) {
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(ApiResponse.error("Data already updated or not found..!!", "INTERNAL_SERVER_ERROR"));
+//		}
+//	}
 
 	@PostMapping("/saveSuppliersDetails")
 	public ResponseEntity<ApiResponse<SupplierResponseDetail>> saveSuppliersDetails(
@@ -172,11 +143,9 @@ public class ShopInventoryController {
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(ApiResponse.success("Data saved successfully", supplierResponseDetail));
 		} catch (ShopInventoryException e) {
-			logger.error("Error saving category: {}", supplierRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Duplicate Data not Allowed..!!", "INTERNAL_SERVER_ERROR"));
 		} catch (Exception e) {
-			logger.error("Unexpected error occurred while saving category: {}", supplierRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Unexpected error occurred", "INTERNAL_SERVER_ERROR"));
 		}
@@ -186,7 +155,6 @@ public class ShopInventoryController {
 	public ResponseEntity<ApiResponse<?>> getSupplierDetails(@RequestBody SupplierRequest supplierRequest)
 			throws ShopInventoryException {
 		try {
-			logger.info("Fetching Supplier details for request: {}", supplierRequest);
 			if (supplierRequest.getSupplierId() != null) {
 				SupplierResponseDetails supplierResponseDetails = shopInventoryService
 						.getSupplierId(supplierRequest.getSupplierId());
@@ -198,7 +166,6 @@ public class ShopInventoryController {
 						.body(ApiResponse.success("All data retrieved successfully", allSupplierDetails));
 			}
 		} catch (ShopInventoryException e) {
-			logger.error("Error retrieving category details: {}", supplierRequest, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("No Data Found..!!", "INTERNAL_SERVER_ERROR"));
 		}
@@ -208,17 +175,16 @@ public class ShopInventoryController {
 	public ResponseEntity<ApiResponse<SupplierResponseDetails>> updateSupplierDetails(
 			@RequestBody SupplierRequest supplierRequest) {
 		try {
-			logger.info("Updating Supplier Details: {}", supplierRequest);
 			SupplierResponseDetails supplierResponseDetails = shopInventoryService
 					.updateSupplierDetails(supplierRequest);
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ApiResponse.success("Data updated successfully", supplierResponseDetails));
 		} catch (ShopInventoryException e) {
-			logger.error("Error updating Supplier Details: {}", supplierRequest, e);
 			String errorMessage = e.getMessage().contains("not found") ? "Supplier not found..!!"
 					: "Data already updated or an error occurred..!!";
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error(errorMessage, "INTERNAL_SERVER_ERROR"));
 		}
 	}
+
 }
